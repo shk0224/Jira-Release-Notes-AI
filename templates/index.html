@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jira Release Notes AI</title>
+<link rel="stylesheet" href="/static/style.css"></head><body><div class="wrap"><h1>Jira Release Notes AI</h1><p>Generate review-ready maintenance notices or Jira-based release notes. Nothing is published automatically.</p>
+<p class="hint">Use Jira sandbox/non-sensitive test data first. Drafts are not published automatically.</p>
+<form id="form"><div class="row"><div><label for="project_key">Jira Project Key</label><input id="project_key" placeholder="EXAMPLE" required></div><div><label for="fix_version">Fix Version (exact name)</label><input id="fix_version" placeholder="v1.2.0" required></div></div>
+<label for="output_type">Output Type</label><select id="output_type"><option value="release_notes">Release Notes</option><option value="maintenance">Maintenance Notice</option></select>
+<div id="maintenance" class="hidden"><div class="row"><div><label for="maintenance_start">Start (optional)</label><input id="maintenance_start" placeholder="Nov 12, 10 PM"></div><div><label for="maintenance_end">End (optional)</label><input id="maintenance_end" placeholder="Nov 13, 1 AM"></div></div><label for="timezone">Time Zone (optional)</label><input id="timezone" placeholder="ET"><label for="impact">Expected Impact (optional)</label><textarea id="impact" rows="2" placeholder="Briefly describe known impact"></textarea></div>
+<div class="actions"><button id="submit" type="submit">Generate Draft</button><span id="status"></span></div></form>
+<div class="result hidden" id="resultbox"><h2>Generated Draft</h2><pre id="output"></pre><button id="copy" type="button">Copy Text</button> <button id="download" type="button">Download .txt</button></div></div>
+<script>
+const $=id=>document.getElementById(id);$('output_type').onchange=()=>{$('maintenance').classList.toggle('hidden',$('output_type').value!=='maintenance')};
+$('form').onsubmit=async e=>{e.preventDefault();$('submit').disabled=true;$('status').textContent='Generating...';$('status').className='';$('resultbox').classList.add('hidden');
+const payload={};['project_key','fix_version','output_type','maintenance_start','maintenance_end','timezone','impact'].forEach(k=>payload[k]=$(k).value);
+try{const response=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await response.json();if(!response.ok)throw Error(data.detail||'Request failed');$('output').textContent=data.result;$('resultbox').classList.remove('hidden');$('status').textContent='Draft ready';}catch(err){$('status').textContent=err.message;$('status').className='error'}finally{$('submit').disabled=false}};
+$('copy').onclick=()=>navigator.clipboard.writeText($('output').textContent);
+$('download').onclick=()=>{const blob=new Blob([$('output').textContent],{type:'text/plain'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='jira_release_draft.txt';a.click();URL.revokeObjectURL(url)};
+</script></body></html>
