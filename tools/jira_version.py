@@ -1,3 +1,4 @@
+
 """Tool 1: Find a Jira Cloud project fix version by its exact name."""
 
 import os
@@ -8,15 +9,24 @@ from langchain_core.tools import tool
 
 
 def _jira_get(path: str, params: dict | None = None) -> dict | list:
-    """Shared read-only Jira REST API helper, also used by jira_stories.py."""
+    """Shared read-only Jira REST helper with optional IT-approved proxy."""
     base_url = os.getenv("JIRA_BASE_URL", "").rstrip("/")
     email = os.getenv("JIRA_EMAIL", "")
     api_token = os.getenv("JIRA_API_TOKEN", "")
+    approved_proxy = os.getenv("JIRA_HTTPS_PROXY", "").strip()
 
     if not all((base_url, email, api_token)):
         raise ValueError("Set JIRA_BASE_URL, JIRA_EMAIL and JIRA_API_TOKEN in .env.")
     if not base_url.startswith("https://"):
         raise ValueError("JIRA_BASE_URL must start with https://")
+    if approved_proxy and not approved_proxy.startswith(("http://", "https://")):
+        raise ValueError("JIRA_HTTPS_PROXY must be an IT-approved HTTP(S) proxy URL.")
+
+    # Requests already honors standard HTTPS_PROXY/HTTP_PROXY environment variables.
+    # This project-specific setting is optional and must come from corporate IT.
+    request_options = {}
+    if approved_proxy:
+        request_options["proxies"] = {"https": approved_proxy}
 
     response = requests.get(
         base_url + path,
@@ -24,6 +34,7 @@ def _jira_get(path: str, params: dict | None = None) -> dict | list:
         auth=(email, api_token),
         headers={"Accept": "application/json"},
         timeout=30,
+        **request_options,
     )
     response.raise_for_status()
     return response.json()
