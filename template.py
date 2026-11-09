@@ -1,4 +1,3 @@
-
 from pathlib import Path
 
 # Project root directory
@@ -20,9 +19,14 @@ files = [
     "requirements.txt",
     ".env.example",
     ".gitignore",
+    "README.md",
     "tools/__init__.py",
-    "tools/jira_tools.py",
+    "tools/jira_version.py",
+    "tools/jira_stories.py",
+    "tools/story_details.py",
+    "tools/output_formatter.py",
     "templates/index.html",
+    "static/style.css",
     "tests/test_release_notes.py",
 ]
 
@@ -32,7 +36,7 @@ for folder in folders:
     folder_path.mkdir(parents=True, exist_ok=True)
     print(f"Folder created: {folder}")
 
-# Create files
+# Create files (never overwrite existing contents)
 for file in files:
     file_path = PROJECT_ROOT / file
     file_path.parent.mkdir(parents=True, exist_ok=True)

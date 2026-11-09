@@ -13,10 +13,10 @@ python-multipart>=0.0.9      # Form/file upload support in FastAPI
 requests>=2.32,<3            # Calls to the Jira REST API
 python-dotenv>=1,<2          # Loads secrets from .env
 
-# --- AI / agent workflow ---
-langgraph>=0.3,<2            # Agent graph orchestration
-langchain-core>=0.3,<2       # Core LangChain abstractions
-langchain-openai>=0.3,<2     # OpenAI LLM integration
-
 # --- Data validation ---
 pydantic>=2,<3               # Request/response models
+
+# --- AI / agent workflow ---
+langgraph>=1.0,<2            # Agent graph orchestration
+langchain-core>=1.0,<2       # Core LangChain abstractions
+langchain-openai>=1.0,<2     # OpenAI LLM integration
